@@ -1,0 +1,32 @@
+{
+  "name": "@example/server-islands",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "deploy": "netlify deploy --build",
+    "astro": "astro"
+  },
+  "devDependencies": {
+    "@astrojs/netlify": "^5.4.0",
+    "@astrojs/react": "^3.6.0",
+    "@astrojs/tailwind": "^5.1.0",
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.13",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "netlify-cli": "^17.33.3",
+    "postcss": "^8.4.38",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwindcss": "^3.4.3"
+  },
+  "dependencies": {
+    "astro": "^4.12.1",
+    "sharp": "^0.33.3"
+  },
+  "packageManager": "pnpm@9.5.0"
+}

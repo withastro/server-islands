@@ -1,0 +1,23 @@
+---
+const count = Astro.cookies.get("cart")?.number() ?? 0;
+---
+
+<span class="sr-only">Cart</span>
+<span
+  id="cart-count"
+  hidden={count === 0}
+  class:list={[
+    "[&[hidden]]:hidden",
+    "flex h-4 min-w-4 px-1 items-center justify-center rounded-full text-xs font-bold text-white",
+    "bg-gradient-to-tl from-teal-950 to-teal-700 border border-teal-600",
+  ]}>{count}</span
+>
+<script>
+  window.addEventListener("add-to-cart", () => {
+    const el = document.getElementById("cart-count")!;
+    const current = Number(el.textContent || 0);
+    const newCount = String(current + 1);
+    el.textContent = newCount;
+    if (el.hidden) el.hidden = false;
+  });
+</script>

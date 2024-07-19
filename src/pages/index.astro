@@ -1,0 +1,457 @@
+---
+import { Image } from "astro:assets";
+import userImg from "../images/user.avif";
+import mainProductImg from "../images/islands/thailand.avif";
+import RoomAvailability from "../components/RoomAvailability.astro";
+import RecommendedProducts from "../components/RecommendedProducts.astro";
+import CustomerReviews from "../components/CustomerReviews.astro";
+import Stars from "../components/Stars.astro";
+import AddToCart from "../components/AddToCart";
+import CartCount from "../components/CartCount.astro";
+
+const title = "Astro Server Islands";
+const description = "A demo of Astro with Server Islands.";
+---
+
+<html lang="en" class="[color-scheme:dark]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="643" />
+    <meta property="og:image" content={new URL("/og.jpg", Astro.site)} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image:type" content="image/png" />
+    <meta name="twitter:image:width" content="1200" />
+    <meta name="twitter:image:height" content="643" />
+    <meta name="twitter:image" content="todo" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body class="overflow-y-scroll bg-sky-950 bg-[url('/swirl.png')] bg-fixed">
+    <header
+      class="fixed top-0 z-20 flex w-full flex-col border-b border-white/20 bg-black lg:bottom-0 lg:z-auto lg:w-72 lg:border-b-0 lg:border-r shadow-xl shadow-black/20"
+    >
+      <div class="flex h-14 items-center px-4 py-4 lg:h-auto">
+        <div class="group flex w-full items-center gap-x-2.5">
+          <div class="h-7 w-7">
+            <svg
+              viewBox="-30 -20 143 180"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M27.5893 91.1365C22.7555 86.7178 21.3443 77.4335 23.3583 70.7072C26.8503 74.948 31.6888 76.2914 36.7005 77.0497C44.4374 78.2199 52.0358 77.7822 59.2231 74.2459C60.0453 73.841 60.8052 73.3027 61.7036 72.7574C62.378 74.714 62.5535 76.6892 62.3179 78.6996C61.7452 83.5957 59.3086 87.3778 55.4332 90.2448C53.8835 91.3916 52.2437 92.4167 50.6432 93.4979C45.7262 96.8213 44.3959 100.718 46.2435 106.386C46.2874 106.525 46.3267 106.663 46.426 107C43.9155 105.876 42.0817 104.24 40.6844 102.089C39.2086 99.8193 38.5065 97.3081 38.4696 94.5909C38.4511 93.2686 38.4511 91.9345 38.2733 90.6309C37.8391 87.4527 36.3471 86.0297 33.5364 85.9478C30.6518 85.8636 28.37 87.6469 27.7649 90.4554C27.7187 90.6707 27.6517 90.8837 27.5847 91.1341L27.5893 91.1365Z"
+                fill="white"></path>
+              <path
+                d="M0 69.5866C0 69.5866 14.3139 62.6137 28.6678 62.6137L39.4901 29.1204C39.8953 27.5007 41.0783 26.3999 42.4139 26.3999C43.7495 26.3999 44.9325 27.5007 45.3377 29.1204L56.1601 62.6137C73.1601 62.6137 84.8278 69.5866 84.8278 69.5866C84.8278 69.5866 60.5145 3.35233 60.467 3.21944C59.7692 1.2612 58.5911 0 57.0029 0H27.8274C26.2392 0 25.1087 1.2612 24.3634 3.21944C24.3108 3.34983 0 69.5866 0 69.5866Z"
+                fill="white"></path>
+            </svg>
+          </div>
+          <h3 class="text-white">Server Islands</h3>
+        </div>
+      </div>
+      <!-- <button
+        type="button"
+        class="group absolute right-0 top-0 flex h-14 items-center gap-x-2 px-4 lg:hidden"
+      >
+        <span class="font-medium text-gray-100 group-hover:text-gray-400">
+          Menu
+        </span>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+          aria-hidden="true"
+          class="block w-6 text-gray-400"
+          ><path
+            fill-rule="evenodd"
+            d="M3 6.75A.75.75 0 0 1 3.75 6h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 6.75ZM3 12a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75A.75.75 0 0 1 3 12Zm0 5.25a.75.75 0 0 1 .75-.75h16.5a.75.75 0 0 1 0 1.5H3.75a.75.75 0 0 1-.75-.75Z"
+            clip-rule="evenodd"></path></svg
+        >
+      </button> -->
+      <div class="overflow-y-auto lg:static lg:block hidden">
+        <div
+          class="prose prose-sm prose-invert prose-p:my-2 prose-hr:my-6 max-w-none space-y-6 px-4 pb-20"
+        >
+          <div>
+            <p>
+              <a href="https://astro.build/blog/future-of-astro-server-islands/"
+                ><span class="font-bold">Server islands</span></a
+              >
+              make it easy to combine high performance static HTML and dynamic server-generated
+              components.
+            </p>
+
+            <p>How it works:</p>
+
+            <ul>
+              <li>
+                Static HTML, which can be cached on a CDN, loads first and fast.
+              </li>
+              <li>
+                This HTML shell shows placeholders for dynamic islands of
+                content.
+              </li>
+              <li>When it is ready, the content for the islands loads in.</li>
+            </ul>
+
+            <p>
+              This approach means you can get the majority of your content in
+              front of users as fast as possible and then load personalized
+              details once they are ready.
+            </p>
+
+            <hr />
+
+            <p class="text-gray-400">
+              In this example, the <span class="font-bold text-teal-300"
+                >pulsing dots</span
+              > highlight artificially delayed responses to demonstrate the technique:
+            </p>
+
+            <ul class="text-gray-400">
+              <li>Room availability → 400ms</li><li>
+                Recommended trips → 800ms
+              </li><li>Reviews → 1000ms</li>
+            </ul>
+          </div>
+          <p class="text-gray-400">
+            Try refreshing the page to restart the demo.
+          </p>
+          <p class="text-gray-400">
+            This demo is inspired by the Next.js <a href="https://www.partialprerendering.com/">Partial Prerendering</a> demo.
+          </p>
+        </div>
+      </div>
+    </header>
+    <div class="lg:pl-72">
+      <div class="mx-auto max-w-4xl space-y-8 px-2 pt-20 lg:px-8 lg:py-8">
+        <div
+          class="border border-white/20 shadow-xl shadow-black/20 bg-black p-3.5 lg:p-6"
+        >
+          <div class="space-y-10">
+            <aside
+              class="flex items-center justify-between gap-x-3 border-b border-gray-700 px-1 pb-3.5 lg:pb-6"
+            >
+              <div class="flex gap-x-3 items-center">
+                <div class="h-7 w-7">
+                  <svg
+                    viewBox="0 0 90 113"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M27.5893 91.1365C22.7555 86.7178 21.3443 77.4335 23.3583 70.7072C26.8503 74.948 31.6888 76.2914 36.7005 77.0497C44.4374 78.2199 52.0358 77.7822 59.2231 74.2459C60.0453 73.841 60.8052 73.3027 61.7036 72.7574C62.378 74.714 62.5535 76.6892 62.3179 78.6996C61.7452 83.5957 59.3086 87.3778 55.4332 90.2448C53.8835 91.3916 52.2437 92.4167 50.6432 93.4979C45.7262 96.8213 44.3959 100.718 46.2435 106.386C46.2874 106.525 46.3267 106.663 46.426 107C43.9155 105.876 42.0817 104.24 40.6844 102.089C39.2086 99.8193 38.5065 97.3081 38.4696 94.5909C38.4511 93.2686 38.4511 91.9345 38.2733 90.6309C37.8391 87.4527 36.3471 86.0297 33.5364 85.9478C30.6518 85.8636 28.37 87.6469 27.7649 90.4554C27.7187 90.6707 27.6517 90.8837 27.5847 91.1341L27.5893 91.1365Z"
+                      fill="white"></path>
+                    <path
+                      d="M0 69.5866C0 69.5866 14.3139 62.6137 28.6678 62.6137L39.4901 29.1204C39.8953 27.5007 41.0783 26.3999 42.4139 26.3999C43.7495 26.3999 44.9325 27.5007 45.3377 29.1204L56.1601 62.6137C73.1601 62.6137 84.8278 69.5866 84.8278 69.5866C84.8278 69.5866 60.5145 3.35233 60.467 3.21944C59.7692 1.2612 58.5911 0 57.0029 0H27.8274C26.2392 0 25.1087 1.2612 24.3634 3.21944C24.3108 3.34983 0 69.5866 0 69.5866Z"
+                      fill="white"></path>
+                  </svg>
+                </div>
+                <div class="relative flex-1">
+                  <div
+                    class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                      class="h-5 w-5 fill-gray-300"
+                    >
+                      <path
+                        fill-rule="evenodd"
+                        d="M10.5 3.75a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5ZM2.25 10.5a8.25 8.25 0 1 1 14.59 5.28l4.69 4.69a.75.75 0 1 1-1.06 1.06l-4.69-4.69A8.25 8.25 0 0 1 2.25 10.5Z"
+                        clip-rule="evenodd"></path>
+                    </svg>
+                  </div>
+                  <input
+                    disabled
+                    aria-label="Search"
+                    placeholder="Search"
+                    type="search"
+                    id="search"
+                    class="block w-full rounded-full border bg-gray-900 border-gray-700 pl-10 text-gray-200"
+                    autocomplete="off"
+                    name="search"
+                  />
+                </div>
+              </div>
+              <div class="flex shrink-0 gap-x-3">
+                <div
+                  class="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border bg-gray-800 border-gray-700 text-white"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 256 256"
+                    fill="currentColor"
+                    aria-hidden="true"
+                    class="w-6"
+                  >
+                    <path
+                      d="M230.14 58.87A8 8 0 0 0 224 56H62.68L56.6 22.57A8 8 0 0 0 48.73 16H24a8 8 0 0 0 0 16h18l25.56 140.29a24 24 0 0 0 5.33 11.27a28 28 0 1 0 44.4 8.44h45.42a27.75 27.75 0 0 0-2.71 12a28 28 0 1 0 28-28H91.17a8 8 0 0 1-7.87-6.57L80.13 152h116a24 24 0 0 0 23.61-19.71l12.16-66.86a8 8 0 0 0-1.76-6.56M104 204a12 12 0 1 1-12-12a12 12 0 0 1 12 12m96 0a12 12 0 1 1-12-12a12 12 0 0 1 12 12"
+                    ></path>
+                  </svg>
+                  <div
+                    class="absolute right-1 top-0.5 translate-x-1/2 -translate-y-1/2"
+                  >
+                    <CartCount server:defer>
+                      <span slot="fallback"></span>
+                    </CartCount>
+                  </div>
+                </div>
+                <Image
+                  alt="User"
+                  fetchpriority="high"
+                  width="40"
+                  height="40"
+                  widths={[40]}
+                  decoding="async"
+                  class="rounded-full h-10 object-cover border border-white/30 grayscale"
+                  style="color:transparent"
+                  src={userImg}
+                />
+              </div>
+            </aside>
+            <main class="space-y-8 lg:space-y-14">
+              <div class="grid grid-cols-4 md:grid-cols-3 gap-6">
+                <div class="col-span-2 md:order-1 md:col-span-1">
+                  <div class="space-y-0.5 grayscale-[0.75] brightness-90">
+                    <Image
+                      alt="Birds-eye view of an archipelago of small islands"
+                      fetchpriority="high"
+                      decoding="async"
+                      loading="eager"
+                      class="block rounded-t-lg object-cover aspect-square bg-[linear-gradient(117deg,#00b3db,#ced0ce)]"
+                      widths={[200, 400, 800]}
+                      sizes="(min-width: 900px) 250px, (min-width: 768px) 30vw, 50vw"
+                      src={mainProductImg}
+                    />
+                    <div class="grid grid-cols-3 gap-x-0.5">
+                      {
+                        [0, 1, 2].map((i) => (
+                          <Image
+                            alt=""
+                            fetchpriority="high"
+                            decoding="async"
+                            loading="eager"
+                            class:list={[
+                              "aspect-square bg-[linear-gradient(117deg,#00b3db,#ced0ce)]",
+                              {
+                                "rounded-bl-lg": i === 0,
+                                "rounded-br-lg": i === 2,
+                              },
+                            ]}
+                            widths={[84]}
+                            sizes="(min-width: 768px) 75px, 16.66vw"
+                            src={mainProductImg}
+                          />
+                        ))
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="col-span-2 md:order-3 md:col-span-1">
+                  <div class="space-y-4 rounded-lg bg-gray-900 p-3">
+                    <div class="flex">
+                      <div
+                        class="rounded bg-gray-600 px-1.5 text-xs font-medium leading-5 text-white"
+                      >
+                        Summer offer ☀️
+                      </div>
+                    </div>
+                    <div class="flex gap-x-1.5 items-center">
+                      <div
+                        class="hidden sm:block px-2 rounded-full text-sm font-bold leading-snug bg-gray-600"
+                      >
+                        -15%
+                      </div>
+                      <div class="flex">
+                        <div class="text-lg font-bold leading-snug text-white">
+                          $1,700
+                        </div>
+                      </div>
+                      <div
+                        class="text-xs self-start leading-snug text-gray-400 line-through"
+                      >
+                        $2,000
+                      </div>
+                    </div>
+                    <div class="relative">
+                      <div class="absolute -left-[17px] top-2">
+                        <span class="flex h-[11px] w-[11px]">
+                          <span
+                            class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75"
+                          ></span>
+                          <span
+                            class="relative inline-flex h-[11px] w-[11px] rounded-full bg-teal-400"
+                          ></span>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="text-sm">
+                      <RoomAvailability server:defer>
+                        <div
+                          class="text-sm text-center border border-transparent p-1 text-teal-300"
+                          slot="fallback"
+                        >
+                          <span class="space-x-0.5">
+                            <span
+                              class="inline-flex animate-[loading_1.4s_ease-in-out_infinite] rounded-full"
+                              >•</span
+                            >
+                            <span
+                              class="inline-flex animate-[loading_1.4s_ease-in-out_0.2s_infinite] rounded-full"
+                              >•</span
+                            >
+                            <span
+                              class="inline-flex animate-[loading_1.4s_ease-in-out_0.4s_infinite] rounded-full"
+                              >•</span
+                            >
+                          </span>
+                        </div>
+                      </RoomAvailability>
+                    </div>
+                    <AddToCart client:idle />
+                  </div>
+                </div>
+                <div class="col-span-full space-y-2 md:order-2 md:col-span-1">
+                  <h1
+                    class="truncate text-xl font-medium text-white lg:text-2xl leading-none"
+                  >
+                    Luxury Island Getaway
+                  </h1>
+                  <Stars stars={5} />
+                  <div class="space-y-4 text-sm text-gray-400">
+                    <p>
+                      Whether you're looking for a romantic getaway, a party
+                      weekend, or a place to make family memories, you'll find
+                      what you're looking for at Luxury Island Retreat!
+                    </p><p>
+                      We provide the basics of a great vacation: spectacular
+                      rooms, multiple dining options, and a stunning beach.
+                      Combine that with your own personalized activities and
+                      excursions for the trip of your dreams.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </main>
+            <footer class="space-y-10">
+              <div class="py-4 border-y border-gray-700">
+                <div class="relative">
+                  <div class="absolute -left-4 top-2">
+                    <span class="flex h-[11px] w-[11px]"
+                      ><span
+                        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75"
+                      ></span><span
+                        class="relative inline-flex h-[11px] w-[11px] rounded-full bg-teal-400"
+                      ></span></span
+                    >
+                  </div>
+                </div>
+                <RecommendedProducts server:defer>
+                  <div class="space-y-6 pb-[5px]" slot="fallback">
+                    <div class="space-y-2">
+                      <div
+                        class="h-6 w-1/3 rounded-lg bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                      >
+                      </div>
+                      <div
+                        class="h-4 w-1/2 rounded-lg bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                      >
+                      </div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-6">
+                      <div class="col-span-4 space-y-4 lg:col-span-1">
+                        <div
+                          class="relative h-[167px] rounded-xl bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                        >
+                        </div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-6 w-1/3 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-4/6 rounded-lg bg-gray-900"></div>
+                      </div>
+                      <div class="col-span-4 space-y-4 lg:col-span-1">
+                        <div
+                          class="relative h-[167px] rounded-xl bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                        >
+                        </div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-6 w-1/3 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-4/6 rounded-lg bg-gray-900"></div>
+                      </div>
+                      <div class="col-span-4 space-y-4 lg:col-span-1">
+                        <div
+                          class="relative h-[167px] rounded-xl bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                        >
+                        </div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-6 w-1/3 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-4/6 rounded-lg bg-gray-900"></div>
+                      </div>
+                      <div class="col-span-4 space-y-4 lg:col-span-1">
+                        <div
+                          class="relative h-[167px] rounded-xl bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                        >
+                        </div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-6 w-1/3 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-4/6 rounded-lg bg-gray-900"></div>
+                      </div>
+                    </div>
+                  </div>
+                </RecommendedProducts>
+              </div>
+              <div>
+                <div class="relative">
+                  <div class="absolute -left-4 top-2">
+                    <span class="flex h-[11px] w-[11px]"
+                      ><span
+                        class="absolute inline-flex h-full w-full animate-ping rounded-full bg-teal-400 opacity-75"
+                      ></span><span
+                        class="relative inline-flex h-[11px] w-[11px] rounded-full bg-teal-400"
+                      ></span></span
+                    >
+                  </div>
+                </div>
+                <CustomerReviews server:defer>
+                  <div class="space-y-6" slot="fallback">
+                    <div
+                      class="h-7 w-2/5 rounded-lg bg-gray-900 relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1.5s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent"
+                    >
+                    </div>
+                    <div class="space-y-8">
+                      <div class="space-y-4">
+                        <div class="h-6 w-2/6 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-1/6 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-4/6 rounded-lg bg-gray-900"></div>
+                      </div>
+                      <div class="space-y-4">
+                        <div class="h-6 w-2/6 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-1/6 rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-full rounded-lg bg-gray-900"></div>
+                        <div class="h-4 w-4/6 rounded-lg bg-gray-900"></div>
+                      </div>
+                    </div>
+                  </div>
+                </CustomerReviews>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
