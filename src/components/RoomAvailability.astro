@@ -1,7 +1,8 @@
 ---
-let p = new Promise((resolve) => setTimeout(resolve, 400));
-await p;
-const roomsRemaining = 1 + Math.ceil(Math.random() * 8);
+import { fetchAPI } from '../utils/api.js';
+
+let res = await fetchAPI('rooms');
+let roomsRemaining: number = await res.json();
 ---
 
 <p
