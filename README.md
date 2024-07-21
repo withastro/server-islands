@@ -35,3 +35,5 @@
 - This example is ready to deploy to Netlify, but can be updated to deploy to other hosts by changing the adapter in `astro.config.mjs`.
 
   Learn more in [“On-demand Rendering Adapters”](https://docs.astro.build/en/guides/server-side-rendering/) in the Astro Docs.
+
+- This example is backed by an API which includes the delays. You can see the source here: https://github.com/withastro/server-islands-api
