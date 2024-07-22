@@ -2,7 +2,7 @@
 import { fetchAPI } from "../utils/api.js";
 import Stars from "./Stars.astro";
 
-let res = await fetchAPI('reviews');
+let res = await fetchAPI('reviews', 1000);
 let reviews: any[] = await res.json();
 ---
 

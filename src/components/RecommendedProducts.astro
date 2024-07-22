@@ -12,7 +12,7 @@ import turkey from "../images/islands/turkey.avif";
 import Stars from "./Stars.astro";
 
 
-let res = await fetchAPI('recommendations');
+let res = await fetchAPI('recommendations', 800);
 let recommended: any[] = await res.json();
 
 recommended.forEach((item: any) => {
