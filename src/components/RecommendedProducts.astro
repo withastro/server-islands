@@ -1,6 +1,5 @@
 ---
 import { Image } from "astro:assets";
-import { fetchAPI } from '../utils/api.js';
 import capri from "../images/islands/capri.avif";
 import iceland from "../images/islands/iceland.avif";
 import maldives from "../images/islands/maldives.avif";
@@ -9,42 +8,80 @@ import puertoRico from "../images/islands/puerto-rico.avif";
 import santorini from "../images/islands/santorini.avif";
 import skellig from "../images/islands/skellig.avif";
 import turkey from "../images/islands/turkey.avif";
+import { shuffle } from "../utils/shuffle";
 import Stars from "./Stars.astro";
 
+let p = new Promise((resolve) => setTimeout(resolve, 800));
+await p;
 
-let res = await fetchAPI('recommendations', 800);
-let recommended: any[] = await res.json();
+const islands = [
+  {
+    thumbnail: capri,
+    alt: "Rocky outcrops in a still blue sea are framed by palm fronds.",
+    tag: "Best Deal ⭐️",
+    title: "Mediterranean Weekend Break",
+    stars: 4,
+    discount: "-30%",
+    price: "$700",
+    was: "$1,000",
+  },
+  {
+    thumbnail: iceland,
+    alt: "Peachy clouds reflect on a tranquil sea. A rocky beach leads to a horizon lined with fir trees.",
+    title: "Volcanic Adventure Tour",
+    stars: 3,
+    price: "$1,800",
+  },
+  {
+    thumbnail: maldives,
+    alt: "A green atoll, ringed by creamy white beaches in an expanse of calm, blue ocean.",
+    title: "Tropical Dream",
+    stars: 5,
+    price: "$3,999",
+  },
+  {
+    thumbnail: panama,
+    alt: "A small low-lying, palm tree-covered island sits against a bright blue sea and sky.",
+    tag: "Trending 🔥",
+    title: "Beach Resort",
+    stars: 4,
+    price: "$1,700",
+    cta: "Just 1 room left",
+  },
+  {
+    thumbnail: puertoRico,
+    alt: "Palm trees frame the sea seen from a sandy beach.",
+    title: "Island Recharge",
+    stars: 4,
+    discount: "-25%",
+    price: "$1,125",
+    was: "$1,500",
+  },
+  {
+    thumbnail: santorini,
+    alt: "A blue-domed and white-washed building in front of a sunny sea.",
+    title: "Greek Archipelagos",
+    stars: 5,
+    price: "$2,200",
+  },
+  {
+    thumbnail: skellig,
+    alt: "A barren rocky islands juts out of the bright blue ocean.",
+    title: "Rugged Retreat",
+    stars: 2,
+    price: "$650",
+  },
+  {
+    thumbnail: turkey,
+    alt: "Palm trees reflect in the rippling water of a swimming pool.",
+    title: "Galactic Vacations",
+    stars: 4,
+    price: "$1,300",
+    cta: "Just 1 room left",
+  },
+];
 
-recommended.forEach((item: any) => {
-  let thumbnail: any;
-  switch(item.name) {
-    case 'capri':
-      thumbnail = capri;
-      break;
-    case 'iceland':
-      thumbnail = iceland;
-      break;
-    case 'maldives':
-      thumbnail = maldives;
-      break;
-    case 'panama':
-      thumbnail = panama;
-      break;
-    case 'puertoRico':
-      thumbnail = puertoRico;
-      break;
-    case 'santorini':
-      thumbnail = santorini;
-      break;
-    case 'skellig':
-      thumbnail = skellig;
-      break;
-    case 'turkey':
-      thumbnail = turkey;
-      break;
-  }
-  item.thumbnail = thumbnail;
-});
+const recommended = shuffle(islands).slice(0, 4);
 ---
 
 <div class="space-y-6">
