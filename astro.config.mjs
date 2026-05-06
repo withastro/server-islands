@@ -1,4 +1,4 @@
-import { defineConfig } from "astro/config";
+import { defineConfig, sessionDrivers } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwind from "@astrojs/tailwind";
@@ -9,4 +9,7 @@ export default defineConfig({
   adapter: cloudflare(),
   integrations: [react(), tailwind({ applyBaseStyles: true })],
   devToolbar: { enabled: false },
+  // Workaround: disable automatic KV SESSION binding since we don't use sessions.
+  // Without this, the adapter injects a KV binding that breaks preview deploys.
+  session: { driver: sessionDrivers.lruCache() },
 });
