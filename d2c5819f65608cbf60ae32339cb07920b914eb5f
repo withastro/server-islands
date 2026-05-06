@@ -1,0 +1,23 @@
+astro.config.mjs
+  cd507709f4df005f 1,12-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "d2c5819f65608cbf60ae32339cb07920b914eb5f",
+  "prompts": {
+    "cd507709f4df005f": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_202bc0110ffeiIk3CRRheHSST0",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matthew Phillips",
+      "messages": [],
+      "total_additions": 4,
+      "total_deletions": 1,
+      "accepted_lines": 4,
+      "overriden_lines": 0
+    }
+  }
+}
