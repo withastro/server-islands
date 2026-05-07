@@ -1,5 +1,4 @@
 import { defineConfig, sessionDrivers } from "astro/config";
-import doesNotExist from "this-package-does-not-exist";
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
 import tailwind from "@astrojs/tailwind";
