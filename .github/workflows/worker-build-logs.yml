@@ -6,6 +6,7 @@ on:
 
 jobs:
   build-logs:
+    if: github.repository == 'withastro/server-islands'
     name: Cloudflare Worker Build
     runs-on: ubuntu-latest
     steps:
