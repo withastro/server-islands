@@ -77,15 +77,34 @@ jobs:
 
           print_new_logs() {
             local json="$1"
-            if [ -z "$json" ]; then return; fi
+            echo "[DEBUG] print_new_logs called, json length: ${#json}"
+            if [ -z "$json" ]; then
+              echo "[DEBUG] json is empty, returning"
+              return
+            fi
+
+            # Check if .lines exists
+            has_lines=$(echo "$json" | jq 'has("lines")' 2>/dev/null || echo "false")
+            echo "[DEBUG] has .lines key: $has_lines"
+
+            # Check top-level keys
+            echo "[DEBUG] top-level keys: $(echo "$json" | jq -r 'keys | join(", ")' 2>/dev/null || echo "PARSE ERROR")"
 
             total_lines=$(echo "$json" | jq '.lines | length' 2>/dev/null || echo "0")
+            echo "[DEBUG] total_lines=$total_lines last_line_count=$last_line_count"
 
             if [ "$total_lines" -gt "$last_line_count" ]; then
+              echo "[DEBUG] printing lines from $last_line_count to $total_lines"
+              # Print first line raw for debugging
+              echo "[DEBUG] first new line raw: $(echo "$json" | jq --argjson skip "$last_line_count" '.lines[$skip:][0]' 2>/dev/null)"
               echo "$json" | jq -r \
                 --argjson skip "$last_line_count" \
                 '.lines[$skip:][] | .[1]'
+              jq_exit=$?
+              echo "[DEBUG] jq exit code: $jq_exit"
               last_line_count=$total_lines
+            else
+              echo "[DEBUG] no new lines to print"
             fi
           }
 
@@ -135,26 +154,36 @@ jobs:
             outcome=$(echo "$build_data" | jq -r '.build_outcome // empty')
 
             # Fetch and print new log lines
-            logs_json=$(curl -sf \
+            echo "[DEBUG] Fetching logs for build ${build_uuid}..."
+            logs_json=$(curl -s \
               "${API_BASE}/builds/builds/${build_uuid}/logs" \
               -H "$AUTH_HEADER" \
             ) 2>/dev/null || logs_json=""
+            logs_curl_exit=$?
+            echo "[DEBUG] logs curl exit code: $logs_curl_exit, response length: ${#logs_json}"
+            echo "[DEBUG] logs first 500 chars: ${logs_json:0:500}"
 
             print_new_logs "$logs_json"
 
             # When a build finishes, status becomes "stopped" and the
             # result is in build_outcome (success, fail, skipped, cancelled, terminated).
             if [ "$status" = "stopped" ]; then
+              echo "[DEBUG] Build is stopped, outcome=$outcome"
               # Do a final log fetch to make sure we got everything
               sleep 2
-              final_logs=$(curl -sf \
+              echo "[DEBUG] Doing final log fetch..."
+              final_logs=$(curl -s \
                 "${API_BASE}/builds/builds/${build_uuid}/logs" \
                 -H "$AUTH_HEADER" \
               ) 2>/dev/null || final_logs=""
+              echo "[DEBUG] final_logs length: ${#final_logs}"
+              echo "[DEBUG] final_logs first 500 chars: ${final_logs:0:500}"
 
               if [ -n "$final_logs" ]; then
                 print_new_logs "$final_logs"
                 print_build_phases "$final_logs"
+              else
+                echo "[DEBUG] final_logs is empty!"
               fi
 
               echo ""
