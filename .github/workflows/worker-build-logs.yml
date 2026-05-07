@@ -20,7 +20,7 @@ jobs:
 
           API_BASE="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}"
           AUTH_HEADER="Authorization: Bearer ${CF_API_TOKEN}"
-          MAX_WAIT=600        # Max seconds to wait for a build to appear
+          MAX_WAIT=300        # Max seconds to wait for a build to appear
           POLL_INTERVAL=10    # Seconds between polls
           LOG_INTERVAL=5      # Seconds between log fetches
 
@@ -32,7 +32,14 @@ jobs:
 
           while [ -z "$build_uuid" ]; do
             if [ "$elapsed" -ge "$MAX_WAIT" ]; then
-              echo "::error::Timed out after ${MAX_WAIT}s waiting for a Worker Build to start for commit ${COMMIT_SHA:0:7}"
+              echo "::error::Timed out after ${MAX_WAIT}s waiting for a Worker Build to start for commit ${COMMIT_SHA:0:7}."
+              echo ""
+              echo "This usually means Worker Builds did not trigger for this push. Check that:"
+              echo "  1. 'Builds for non-production branches' is enabled in your Worker's"
+              echo "     Settings > Build > Branch control (if this is not the production branch)"
+              echo "  2. The branch is not excluded by branch include/exclude filters"
+              echo "  3. Build watch paths (if configured) match the changed files"
+              echo "  4. The CF_WORKER_TAG secret matches the correct Worker"
               exit 1
             fi
 
