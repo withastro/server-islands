@@ -1,0 +1,21 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "1632756aa787c2fb1bd9fdfa1f7430c0f8f55862",
+  "prompts": {
+    "24dc40d27f0528a1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1fd8ecd4cffeedvh8WVUZ4QAtF",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matthew Phillips",
+      "messages": [],
+      "total_additions": 0,
+      "total_deletions": 1,
+      "accepted_lines": 0,
+      "overriden_lines": 0
+    }
+  }
+}
