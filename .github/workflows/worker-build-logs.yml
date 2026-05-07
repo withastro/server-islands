@@ -86,10 +86,12 @@ jobs:
               continue
             }
 
-            status=$(echo "$build_response" | jq -r \
+            build_data=$(echo "$build_response" | jq -r \
               --arg uuid "$build_uuid" \
-              '.result[] | select(.build_uuid == $uuid) | .status'
-            )
+              '.result[] | select(.build_uuid == $uuid)')
+
+            status=$(echo "$build_data" | jq -r '.status')
+            outcome=$(echo "$build_data" | jq -r '.build_outcome // empty')
 
             # Fetch logs
             logs=$(curl -sf \
@@ -109,28 +111,37 @@ jobs:
               fi
             fi
 
-            case "$status" in
-              success)
-                echo ""
-                echo "Build completed successfully."
-                exit 0
-                ;;
-              failure|error)
-                echo ""
-                echo "::error::Build failed with status: ${status}"
-                exit 1
-                ;;
-              cancelled)
-                echo ""
-                echo "::warning::Build was cancelled."
-                exit 1
-                ;;
-              active|building|initializing|queued)
-                sleep "$LOG_INTERVAL"
-                ;;
-              *)
-                # Unknown status, keep polling
-                sleep "$LOG_INTERVAL"
-                ;;
-            esac
+            # When a build finishes, status becomes "stopped" and the
+            # result is in build_outcome (success, fail, skipped, cancelled, terminated).
+            if [ "$status" = "stopped" ]; then
+              echo ""
+              case "$outcome" in
+                success)
+                  echo "Build completed successfully."
+                  exit 0
+                  ;;
+                fail)
+                  echo "::error::Build failed."
+                  exit 1
+                  ;;
+                cancelled)
+                  echo "::warning::Build was cancelled."
+                  exit 1
+                  ;;
+                skipped)
+                  echo "Build was skipped."
+                  exit 0
+                  ;;
+                terminated)
+                  echo "::error::Build was terminated."
+                  exit 1
+                  ;;
+                *)
+                  echo "::error::Build stopped with unknown outcome: ${outcome}"
+                  exit 1
+                  ;;
+              esac
+            fi
+
+            sleep "$LOG_INTERVAL"
           done
