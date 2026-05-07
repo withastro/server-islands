@@ -1,0 +1,23 @@
+.github/workflows/worker-build-logs.yml
+  24dc40d27f0528a1 80-91,94,97-99,103-104,106-107,157-158,162-164,171,174-175,179-180,185-186
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.2.8",
+  "base_commit_sha": "698b6a965606f46b7e31512d6f78eef7998b0c9c",
+  "prompts": {
+    "24dc40d27f0528a1": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_1fd8ecd4cffeedvh8WVUZ4QAtF",
+        "model": "anthropic/claude-opus-4-6"
+      },
+      "human_author": "Matthew Phillips",
+      "messages": [],
+      "total_additions": 32,
+      "total_deletions": 3,
+      "accepted_lines": 32,
+      "overriden_lines": 0
+    }
+  }
+}
