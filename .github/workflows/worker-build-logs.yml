@@ -1,0 +1,129 @@
+name: Worker Build Logs
+
+on:
+  push:
+    branches: ["**"]
+
+jobs:
+  build-logs:
+    name: Cloudflare Worker Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Stream Worker Build Logs
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_BUILDS_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          CF_WORKER_TAG: ${{ secrets.CF_WORKER_TAG }}
+          COMMIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+
+          API_BASE="https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}"
+          AUTH_HEADER="Authorization: Bearer ${CF_API_TOKEN}"
+          MAX_WAIT=600        # Max seconds to wait for a build to appear
+          POLL_INTERVAL=10    # Seconds between polls
+          LOG_INTERVAL=5      # Seconds between log fetches
+
+          # ── Step 1: Wait for a build matching this commit ──
+          echo "Waiting for Worker Build matching commit ${COMMIT_SHA:0:7}..."
+
+          elapsed=0
+          build_uuid=""
+
+          while [ -z "$build_uuid" ]; do
+            if [ "$elapsed" -ge "$MAX_WAIT" ]; then
+              echo "::error::Timed out after ${MAX_WAIT}s waiting for a Worker Build to start for commit ${COMMIT_SHA:0:7}"
+              exit 1
+            fi
+
+            # List recent builds for this worker
+            response=$(curl -sf \
+              "${API_BASE}/builds/workers/${CF_WORKER_TAG}/builds" \
+              -H "$AUTH_HEADER" \
+            ) || {
+              echo "::warning::Failed to fetch builds list, retrying in ${POLL_INTERVAL}s..."
+              sleep "$POLL_INTERVAL"
+              elapsed=$((elapsed + POLL_INTERVAL))
+              continue
+            }
+
+            # Find a build matching our commit SHA
+            build_uuid=$(echo "$response" | jq -r \
+              --arg sha "$COMMIT_SHA" \
+              '.result[] | select(.build_trigger_metadata.commit_hash == $sha) | .build_uuid' \
+              | head -n1
+            )
+
+            if [ -z "$build_uuid" ] || [ "$build_uuid" = "null" ]; then
+              build_uuid=""
+              echo "  No build found yet... (${elapsed}s elapsed)"
+              sleep "$POLL_INTERVAL"
+              elapsed=$((elapsed + POLL_INTERVAL))
+            fi
+          done
+
+          echo "Found build: ${build_uuid}"
+          echo ""
+
+          # ── Step 2: Stream logs until the build completes ──
+          last_log_length=0
+
+          while true; do
+            # Fetch build status
+            build_response=$(curl -sf \
+              "${API_BASE}/builds/workers/${CF_WORKER_TAG}/builds" \
+              -H "$AUTH_HEADER" \
+            ) || {
+              echo "::warning::Failed to fetch build status, retrying..."
+              sleep "$LOG_INTERVAL"
+              continue
+            }
+
+            status=$(echo "$build_response" | jq -r \
+              --arg uuid "$build_uuid" \
+              '.result[] | select(.build_uuid == $uuid) | .status'
+            )
+
+            # Fetch logs
+            logs=$(curl -sf \
+              "${API_BASE}/builds/builds/${build_uuid}/logs" \
+              -H "$AUTH_HEADER" \
+            ) 2>/dev/null || logs=""
+
+            if [ -n "$logs" ]; then
+              # Extract the log lines and print only new ones
+              current_logs=$(echo "$logs" | jq -r '.result // empty' 2>/dev/null || echo "$logs")
+              current_length=${#current_logs}
+
+              if [ "$current_length" -gt "$last_log_length" ]; then
+                # Print only the new portion of logs
+                echo "$current_logs" | tail -c +$((last_log_length + 1))
+                last_log_length=$current_length
+              fi
+            fi
+
+            case "$status" in
+              success)
+                echo ""
+                echo "Build completed successfully."
+                exit 0
+                ;;
+              failure|error)
+                echo ""
+                echo "::error::Build failed with status: ${status}"
+                exit 1
+                ;;
+              cancelled)
+                echo ""
+                echo "::warning::Build was cancelled."
+                exit 1
+                ;;
+              active|building|initializing|queued)
+                sleep "$LOG_INTERVAL"
+                ;;
+              *)
+                # Unknown status, keep polling
+                sleep "$LOG_INTERVAL"
+                ;;
+            esac
+          done
