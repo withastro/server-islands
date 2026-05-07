@@ -72,9 +72,50 @@ jobs:
           echo "Found build: ${build_uuid}"
           echo ""
 
-          # ── Step 2: Stream logs until the build completes ──
+          # ── Helper: fetch and print new log lines ──
           last_line_count=0
 
+          print_new_logs() {
+            local json="$1"
+            if [ -z "$json" ]; then return; fi
+
+            total_lines=$(echo "$json" | jq '.lines | length' 2>/dev/null || echo "0")
+
+            if [ "$total_lines" -gt "$last_line_count" ]; then
+              echo "$json" | jq -r \
+                --argjson skip "$last_line_count" \
+                '.lines[$skip:][] | .[1]'
+              last_line_count=$total_lines
+            fi
+          }
+
+          print_build_phases() {
+            local json="$1"
+            if [ -z "$json" ]; then return; fi
+
+            events_count=$(echo "$json" | jq '.events | length' 2>/dev/null || echo "0")
+            if [ "$events_count" -gt 0 ]; then
+              echo ""
+              echo "── Build Phases ──"
+              echo "$json" | jq -r '
+                .events[] |
+                .type as $type |
+                (.started_on // null) as $start |
+                (.ended_on // null) as $end |
+                if $start != null and $end != null then
+                  (($end | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) -
+                   ($start | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)) as $dur |
+                  "  \($type): \($dur)s"
+                elif $start != null then
+                  "  \($type): (no end time)"
+                else
+                  "  \($type)"
+                end
+              '
+            fi
+          }
+
+          # ── Step 2: Stream logs until the build completes ──
           while true; do
             # Fetch build status
             build_response=$(curl -sf \
@@ -93,51 +134,27 @@ jobs:
             status=$(echo "$build_data" | jq -r '.status')
             outcome=$(echo "$build_data" | jq -r '.build_outcome // empty')
 
-            # Fetch logs
+            # Fetch and print new log lines
             logs_json=$(curl -sf \
               "${API_BASE}/builds/builds/${build_uuid}/logs" \
               -H "$AUTH_HEADER" \
             ) 2>/dev/null || logs_json=""
 
-            if [ -n "$logs_json" ]; then
-              # The logs API returns: { lines: [[timestamp, message], ...], events: [...] }
-              # Extract message text from each line, skipping ones we already printed.
-              total_lines=$(echo "$logs_json" | jq '.lines | length' 2>/dev/null || echo "0")
-
-              if [ "$total_lines" -gt "$last_line_count" ]; then
-                echo "$logs_json" | jq -r \
-                  --argjson skip "$last_line_count" \
-                  '.lines[$skip:][] | .[1]'
-                last_line_count=$total_lines
-              fi
-            fi
+            print_new_logs "$logs_json"
 
             # When a build finishes, status becomes "stopped" and the
             # result is in build_outcome (success, fail, skipped, cancelled, terminated).
             if [ "$status" = "stopped" ]; then
-              # Print build phase summary from events
-              if [ -n "$logs_json" ]; then
-                events_count=$(echo "$logs_json" | jq '.events | length' 2>/dev/null || echo "0")
-                if [ "$events_count" -gt 0 ]; then
-                  echo ""
-                  echo "── Build Phases ──"
-                  echo "$logs_json" | jq -r '
-                    .events[] |
-                    .type as $type |
-                    (.started_on // null) as $start |
-                    (.ended_on // null) as $end |
-                    if $start != null and $end != null then
-                      # Calculate duration in seconds
-                      (($end | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601) -
-                       ($start | sub("\\.[0-9]+Z$"; "Z") | fromdateiso8601)) as $dur |
-                      "  \($type): \($dur)s"
-                    elif $start != null then
-                      "  \($type): (no end time)"
-                    else
-                      "  \($type)"
-                    end
-                  '
-                fi
+              # Do a final log fetch to make sure we got everything
+              sleep 2
+              final_logs=$(curl -sf \
+                "${API_BASE}/builds/builds/${build_uuid}/logs" \
+                -H "$AUTH_HEADER" \
+              ) 2>/dev/null || final_logs=""
+
+              if [ -n "$final_logs" ]; then
+                print_new_logs "$final_logs"
+                print_build_phases "$final_logs"
               fi
 
               echo ""
